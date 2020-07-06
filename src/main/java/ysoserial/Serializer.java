@@ -23,7 +23,15 @@ public class Serializer implements Callable<byte[]> {
 	}
 
 	public static void serialize(final Object obj, final OutputStream out) throws IOException {
-		final ObjectOutputStream objOut = new ObjectOutputStream(out);
+		if (obj instanceof byte[]) {
+            // to be compatible with JDK8u20
+            byte[] bytescodes = (byte[])obj;
+            if (bytescodes.length > 2 && bytescodes[0] == (byte)0xac && bytescodes[1] == (byte)0xed) {
+                out.write(bytescodes);
+                return;
+            }
+        }
+        final ObjectOutputStream objOut = new ObjectOutputStream(out);
 		objOut.writeObject(obj);
 	}
 

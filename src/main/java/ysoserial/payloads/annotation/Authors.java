@@ -15,7 +15,7 @@ public @interface Authors {
     String MBECHLER = "mbechler";
     String JACKOFMOSTTRADES = "JackOfMostTrades";
     String MATTHIASKAISER = "matthias_kaiser";
-    String GEBL = "gebl" ;
+    String GEBL = "gebl";
     String JACOBAINES = "jacob-baines";
     String JASINNER = "jasinner";
     String KULLRICH = "kai_ullrich";
@@ -23,6 +23,7 @@ public @interface Authors {
     String SCRISTALLI = "scristalli";
     String HANYRAX = "hanyrax";
     String EDOARDOVIGNATI = "EdoardoVignati";
+    String KORLR = "koalr";
 
     String[] value() default {};
 
