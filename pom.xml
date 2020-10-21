@@ -22,8 +22,8 @@
 				<version>3.5.1</version>
 				<configuration>
 					<!-- maximize compatibility -->
-					<source>1.6</source>
-					<target>1.6</target>
+					<source>7</source>
+					<target>7</target>
 					<!-- ignore noisy internal api warnings -->
                     <compilerArgument>-XDignore.symbol.file</compilerArgument>
                     <fork>true</fork>
@@ -65,17 +65,46 @@
 		</plugins>
 	</build>
 
-	<repositories>
-		<repository>
-			<id>jenkins</id>
-			<layout>default</layout>
-			<url>http://repo.jenkins-ci.org/public/</url>
-		</repository>
-	</repositories>
+    <!--  默认的仓库地址，可能存在网络连接问题 -->
+<!--	<repositories>-->
+<!--		<repository>-->
+<!--			<id>jenkins</id>-->
+<!--			<layout>default</layout>-->
+<!--			<url>http://repo.jenkins-ci.org/public/</url>-->
+<!--		</repository>-->
+<!--	</repositories>-->
 
 	<dependencies>
 
 		<!-- testing depedencies -->
+
+        <!-- https://mvnrepository.com/artifact/com.caucho/resin -->
+        <dependency>
+            <groupId>com.caucho</groupId>
+            <artifactId>resin</artifactId>
+            <version>4.0.63</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-core</artifactId>
+            <version>8.5.50</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.eclipse.jetty/jetty-server -->
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+            <version>9.3.28.v20191105</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>2.5</version>
+        </dependency>
 
 		<dependency>
 			<groupId>junit</groupId>
@@ -321,7 +350,12 @@
 			<artifactId>vaadin-server</artifactId>
 			<version>7.7.14</version>
 		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>com.caucho</groupId>
+            <artifactId>resin</artifactId>
+            <version>4.0.63</version>
+        </dependency>
+    </dependencies>
 
 	<profiles>
         <profile>

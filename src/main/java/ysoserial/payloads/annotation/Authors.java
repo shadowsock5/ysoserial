@@ -24,6 +24,8 @@ public @interface Authors {
     String HANYRAX = "hanyrax";
     String EDOARDOVIGNATI = "EdoardoVignati";
     String KORLR = "koalr";
+    String WH1T3P1G = "wh1t3p1g";
+    String Shadowsock5 = "Shadowsock5";
 
     String[] value() default {};
 
