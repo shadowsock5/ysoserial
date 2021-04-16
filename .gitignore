@@ -17,3 +17,5 @@ target/
 pwntest
 
 *.ser
+
+ysoserial-0.0.8-SNAPSHOT-all.jar

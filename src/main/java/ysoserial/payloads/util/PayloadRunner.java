@@ -1,6 +1,7 @@
 package ysoserial.payloads.util;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.util.concurrent.Callable;
 
 import ysoserial.Deserializer;
@@ -30,6 +31,10 @@ public class PayloadRunner {
 
 				System.out.println("serializing payload");
 				byte[] ser = Serializer.serialize(objBefore);
+
+				// 测试
+//                (new FileOutputStream("CommonsCollections10TomcatEcho_payload.class")).write(ser);
+
 				Utils.releasePayload(payload, objBefore);
                 return ser;
 		}});

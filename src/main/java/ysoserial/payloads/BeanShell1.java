@@ -57,6 +57,6 @@ public class BeanShell1 extends PayloadRunner implements ObjectPayload<PriorityQ
     }
 
     public static void main(final String[] args) throws Exception {
-	PayloadRunner.run(BeanShell1.class, args);
+	    PayloadRunner.run(BeanShell1.class, args);
     }
 }
