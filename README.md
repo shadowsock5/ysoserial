@@ -180,7 +180,7 @@ C3P0不出网利用：
 - http://redteam.today/2020/04/18/c3p0%E7%9A%84%E4%B8%89%E4%B8%AAgadget/
 - https://mp.weixin.qq.com/s/KBog9XXz7Of93hAiV8Y7fQ
 - https://wx.zsxq.com/mweb/views/topicdetail/topicdetail.html?topic_id=818885112215152&inviter_id=28512258815451&share_from=ShareToWechat&keyword=yRB6EQj
-
+- [cc常见的链关系图](https://wx.zsxq.com/mweb/views/topicdetail/topicdetail.html?topic_id=218851818848141&inviter_id=28512258815451&share_from=ShareToWechat&keyword=UZ7mUj6)
 
 ## Ref
 - [Real Wolrd CTF 3rd Writeup | Old System](https://mp.weixin.qq.com/s/ClASwg6SH0uij_-IX-GahQ)
