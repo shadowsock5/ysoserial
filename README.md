@@ -173,6 +173,13 @@ __bb_C3P0 = b'\xac\xed\x00\x05sr\x00(com.mchange.v2.c3p0.PoolBackedDataSource\xd
 
 ```
 
+C3P0不出网利用：
+> 市面上存在两个C3P0，com.mchange:c3p0、c3p0:c3p0。比较常见的是第一个，两个C3P0都能够利用但是因为SUID的原因需要稍微变化一下，黑盒反序列打第一个没反应时可以尝试下第二个，可能有惊喜~
+
+参考：
+- http://redteam.today/2020/04/18/c3p0%E7%9A%84%E4%B8%89%E4%B8%AAgadget/
+- https://mp.weixin.qq.com/s/KBog9XXz7Of93hAiV8Y7fQ
+- https://wx.zsxq.com/mweb/views/topicdetail/topicdetail.html?topic_id=818885112215152&inviter_id=28512258815451&share_from=ShareToWechat&keyword=yRB6EQj
 
 
 ## Ref
