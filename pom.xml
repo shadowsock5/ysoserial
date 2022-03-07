@@ -66,13 +66,13 @@
 	</build>
 
     <!--  默认的仓库地址，可能存在网络连接问题 -->
-<!--	<repositories>-->
-<!--		<repository>-->
-<!--			<id>jenkins</id>-->
-<!--			<layout>default</layout>-->
-<!--			<url>http://repo.jenkins-ci.org/public/</url>-->
-<!--		</repository>-->
-<!--	</repositories>-->
+	<repositories>
+		<repository>
+			<id>jenkins</id>
+			<layout>default</layout>
+			<url>https://repo.jenkins-ci.org/public/</url>
+		</repository>
+	</repositories>
 
 	<dependencies>
 
