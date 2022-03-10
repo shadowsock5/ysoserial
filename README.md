@@ -9,6 +9,7 @@ AspectJWeaver:
 - https://medium.com/nightst0rm/t%C3%B4i-%C4%91%C3%A3-chi%E1%BA%BFm-quy%E1%BB%81n-%C4%91i%E1%BB%81u-khi%E1%BB%83n-c%E1%BB%A7a-r%E1%BA%A5t-nhi%E1%BB%81u-trang-web-nh%C6%B0-th%E1%BA%BF-n%C3%A0o-61efdf4a03f5
 - [[AntCTFxD^3CTF non-RCE题解]Servlet时间竞争以及AsjpectJWeaver反序列化Gadget构造](https://mp.weixin.qq.com/s/GxFFBekqSl5BOnzAKFGBDQ)
 - [ysoserial AspectJWeaver file write gadget](https://xz.aliyun.com/t/9168)
+- [关于FileUpload1](https://blog.spoock.com/2018/10/15/cve-2016-1000031/)
 
 ## Usage
 
