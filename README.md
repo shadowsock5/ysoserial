@@ -11,6 +11,12 @@ AspectJWeaver:
 - [ysoserial AspectJWeaver file write gadget](https://xz.aliyun.com/t/9168)
 - [关于FileUpload1](https://blog.spoock.com/2018/10/15/cve-2016-1000031/)
 
+```
+- FileUpload的1.3.1之前的版本配合JDK1.7之前的版本，能够达到写入任意文件的漏洞;
+- FileUpload的1.3.1之前的版本配合JDK1.7及其之后的版本，能够向任意目录写入文件;
+- FileUpload的1.3.1以及之后的版本只能向特定目录写入文件，此目录也必须存在。(文件的的命名也无法控制);
+```
+
 ## Usage
 
 ```shell
