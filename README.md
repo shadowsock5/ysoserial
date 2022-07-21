@@ -1,4 +1,6 @@
-
+- https://github.com/wh1t3p1g/ysomap
+- https://github.com/zema1/ysoserial
+- https://github.com/su18/ysoserial
 # ysoserial
 
 new gadget:
