@@ -4,6 +4,8 @@
 
 通过dns探测class：
 - https://github.com/kezibei/Urldns
+各个gadget的说明：
+- https://github.com/kezibei/Urldns/blob/main/src/main/en.java
 
 # ysoserial
 
