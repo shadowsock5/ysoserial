@@ -1,6 +1,10 @@
 - https://github.com/wh1t3p1g/ysomap
 - https://github.com/zema1/ysoserial
 - https://github.com/su18/ysoserial
+
+通过dns探测class：
+- https://github.com/kezibei/Urldns
+
 # ysoserial
 
 new gadget:
