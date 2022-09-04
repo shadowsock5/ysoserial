@@ -25,6 +25,7 @@ AspectJWeaver:
 - FileUpload的1.3.1以及之后的版本只能向特定目录写入文件，此目录也必须存在。(文件的的命名也无法控制);
 ```
 
+- 不依赖cc的cb链：https://www.leavesongs.com/PENETRATION/commons-beanutils-without-commons-collections.html
 ## Usage
 
 ```shell
