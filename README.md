@@ -6,6 +6,8 @@
 - https://github.com/kezibei/Urldns
 各个gadget的说明：
 - https://github.com/kezibei/Urldns/blob/main/src/main/en.java
+参考代码：
+- https://github.com/BishopFox/GadgetProbe/blob/ab1bc54e3fd66bd07b58a14293bfd7559ffe5ce6/src/main/java/com/bishopfox/gadgetprobe/GadgetProbe.java#L80
 
 # ysoserial
 
