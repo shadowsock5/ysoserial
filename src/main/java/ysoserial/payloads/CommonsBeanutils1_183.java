@@ -1,3 +1,5 @@
+package ysoserial.payloads;
+
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtField;
